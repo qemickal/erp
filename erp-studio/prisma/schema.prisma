@@ -1,0 +1,294 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  DESIGNER
+  PRODUCTION
+  QUALITY
+  SALES
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PRODUCTION
+  READY
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+enum ProductionOrderStatus {
+  DRAFT
+  SCHEDULED
+  IN_PROGRESS
+  REWORK
+  COMPLETED
+  CANCELLED
+}
+
+enum CheckStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PackagingStatus {
+  PENDING
+  PACKED
+  SHIPPED
+}
+
+enum PostSaleType {
+  FOLLOW_UP
+  CLAIM
+  RETURN
+  SATISFACTION
+}
+
+enum PostSaleStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id        String   @id @default(cuid()) @unique
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(SALES)
+  avatar    String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quotes        Quote[]
+  orders        Order[]
+  production    ProductionOrder[]
+  stages        ProductionStage[] @relation("StageOperator")
+  qualityChecks QualityCheck[]
+  packaging     PackagingCheck[]
+  postSales     PostSale[]
+}
+
+model Client {
+  id        String   @id @default(cuid()) @unique
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  rfc       String? // Mexican tax ID
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quotes  Quote[]
+  orders  Order[]
+}
+
+model Product {
+  id        String   @id @default(cuid()) @unique
+  name      String
+  description String?
+  category  String? // Tarjetas, Flyers, Carteles, Empaque, Etiquetas, etc.
+  basePrice Decimal  @default(0)
+  unit      String? // pza, kg, m2
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quoteItems  QuoteItem[]
+  orderItems  OrderItem[]
+}
+
+model Quote {
+  id        String      @id @default(cuid()) @unique
+  number    String      @unique // e.g. COT-2026-0001
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id])
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  status    QuoteStatus @default(DRAFT)
+  subtotal  Decimal     @default(0)
+  tax       Decimal     @default(0)
+  total     Decimal     @default(0)
+  validUntil DateTime?
+  notes     String?
+  acceptedAt DateTime?
+
+  items     QuoteItem[]
+  order     Order?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([number])
+}
+
+model QuoteItem {
+  id        String   @id @default(cuid()) @unique
+  quoteId   String
+  quote     Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity  Int      @default(1)
+  unitPrice Decimal  @default(0)
+  total     Decimal  @default(0)
+
+  @@index([quoteId])
+}
+
+model Order {
+  id           String       @id @default(cuid()) @unique
+  number       String       @unique // e.g. PED-2026-0001
+  quoteId      String?   @unique
+  quote        Quote?    @relation(fields: [quoteId], references: [id])
+  clientId     String
+  client       Client    @relation(fields: [clientId], references: [id])
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  status       OrderStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  subtotal     Decimal   @default(0)
+  tax          Decimal   @default(0)
+  total        Decimal   @default(0)
+  deliveryDate DateTime?
+  notes        String?
+
+  items             OrderItem[]
+  productionOrder   ProductionOrder?
+  postSales         PostSale[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([number])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid()) @unique
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity  Int      @default(1)
+  unitPrice Decimal  @default(0)
+  total     Decimal  @default(0)
+
+  @@index([orderId])
+}
+
+model ProductionOrder {
+  id          String                @id @default(cuid()) @unique
+  number      String                @unique // e.g. OP-2026-0001
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  userId      String   // responsible producer
+  user        User     @relation(fields: [userId], references: [id])
+  status      ProductionOrderStatus @default(DRAFT)
+  startDate   DateTime?
+  dueDate     DateTime?
+  completedAt DateTime?
+  notes       String?
+
+  stages      ProductionStage[]
+  quality     QualityCheck?
+  packaging   PackagingCheck?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model ProductionStage {
+  id           String   @id @default(cuid()) @unique
+  productionId String
+  production   ProductionOrder @relation(fields: [productionId], references: [id], onDelete: Cascade)
+  name         String   // Diseño, Preprensa, Impresión, Acabado, Empaque
+  order        Int      @default(0)
+  status       CheckStatus @default(PENDING)
+  startedAt    DateTime?
+  completedAt  DateTime?
+  operatorId   String?
+  operator     User?    @relation("StageOperator", fields: [operatorId], references: [id])
+  notes        String?
+
+  @@index([productionId])
+}
+
+model QualityCheck {
+  id          String   @id @default(cuid()) @unique
+  productionId String  @unique
+  production  ProductionOrder @relation(fields: [productionId], references: [id])
+  inspectorId String
+  inspector   User     @relation(fields: [inspectorId], references: [id])
+  status      CheckStatus @default(PENDING)
+  criteria    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productionId])
+}
+
+model PackagingCheck {
+  id             String   @id @default(cuid()) @unique
+  productionId   String   @unique
+  production     ProductionOrder @relation(fields: [productionId], references: [id])
+  inspectorId    String
+  inspector      User     @relation(fields: [inspectorId], references: [id])
+  status         PackagingStatus @default(PENDING)
+  packagingType  String?
+  itemsPacked    Int      @default(0)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([productionId])
+}
+
+model PostSale {
+  id          String   @id @default(cuid()) @unique
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  type        PostSaleType @default(FOLLOW_UP)
+  status      PostSaleStatus @default(OPEN)
+  description String
+  rating      Int?     // 1-5 satisfaction
+  resolvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
