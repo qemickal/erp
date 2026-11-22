@@ -60,29 +60,29 @@ export const ROLE_LABELS: Record<string, string> = {
 };
 
 export const STATUS_VARIANT: Record<string, string> = {
-  DRAFT: "default",
-  SENT: "default",
-  ACCEPTED: "default",
+  DRAFT: "secondary",
+  SENT: "info",
+  ACCEPTED: "ok",
   REJECTED: "destructive",
   EXPIRED: "secondary",
-  PENDING: "secondary",
-  IN_PRODUCTION: "default",
-  READY: "default",
-  SHIPPED: "default",
-  DELIVERED: "default",
+  PENDING: "info",
+  IN_PRODUCTION: "info",
+  READY: "ok",
+  SHIPPED: "info",
+  DELIVERED: "ok",
   CANCELLED: "destructive",
   UNPAID: "destructive",
-  PARTIAL: "secondary",
-  PAID: "default",
-  SCHEDULED: "default",
-  REWORK: "secondary",
-  COMPLETED: "default",
-  APPROVED: "default",
+  PARTIAL: "info",
+  PAID: "ok",
+  SCHEDULED: "info",
+  REWORK: "info",
+  COMPLETED: "ok",
+  APPROVED: "ok",
   REJECTED_Q: "destructive",
-  PACKED: "default",
-  OPEN: "secondary",
-  IN_PROGRESS: "default",
-  RESOLVED: "default",
+  PACKED: "ok",
+  OPEN: "info",
+  IN_PROGRESS: "info",
+  RESOLVED: "ok",
   CLOSED: "secondary",
 };
 
@@ -91,6 +91,6 @@ export function statusBadgeVariant(status: string | undefined | null): string {
 }
 
 export function roleVariant(role: string | undefined | null): "default" | "destructive" | "secondary" | "outline" | "ghost" | "link" {
-  const map: Record<string, "default" | "destructive" | "secondary" | "outline" | "ghost" | "link"> = { OWNER: "destructive", ADMIN: "default", DESIGNER: "default", PRODUCTION: "default", QUALITY: "default", SALES: "outline" };
+  const map: Record<string, "default" | "destructive" | "secondary" | "outline" | "ghost" | "link"> = { OWNER: "default", ADMIN: "default", DESIGNER: "default", PRODUCTION: "default", QUALITY: "default", SALES: "outline" };
   return map[String(role ?? "") as keyof typeof map] || "default";
 }

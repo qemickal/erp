@@ -44,7 +44,7 @@ export default function Chrome({
           <TopBar user={user} />
         </div>
       )}
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {children}
       </main>
       {user && <NavBottom />}

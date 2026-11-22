@@ -18,6 +18,9 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        /* Duotonos del manual: 00 + Teal 01 · Royal + Teal 02 */
+        ok: "bg-mint/40 text-oxford [a]:hover:bg-mint/55",
+        info: "bg-sky/35 text-oxford [a]:hover:bg-sky/50",
       },
     },
     defaultVariants: {
