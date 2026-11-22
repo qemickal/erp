@@ -1,8 +1,7 @@
 "use client";
 
 import { notFound, useRouter } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { updateProduct, deleteProduct } from "@/lib/actions-quality";
+import { updateProduct, deleteProduct, getProductById } from "@/lib/actions-quality";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +33,7 @@ export default function EditProductPage({
   useEffect(() => {
     (async () => {
       const { id } = await params;
-      const p = await prisma.product.findUnique({ where: { id } });
+      const p = await getProductById(id);
       if (!p) {
         notFound();
         return;

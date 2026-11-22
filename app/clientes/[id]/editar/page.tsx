@@ -1,8 +1,7 @@
 "use client";
 
 import { notFound, useRouter } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { updateClient, deleteClient } from "@/lib/actions-quality";
+import { updateClient, deleteClient, getClientById } from "@/lib/actions-quality";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +32,7 @@ export default function EditClientPage({
   useEffect(() => {
     (async () => {
       const { id } = await params;
-      const c = await prisma.client.findUnique({ where: { id } });
+      const c = await getClientById(id);
       if (!c) {
         notFound();
         return;

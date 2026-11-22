@@ -89,6 +89,10 @@ export async function listClients() {
   return prisma.client.findMany({ orderBy: { name: "asc" } });
 }
 
+export async function getClientById(id: string) {
+  return prisma.client.findUnique({ where: { id } });
+}
+
 export async function createClient(formData: FormData) {
   await prisma.client.create({
     data: {
@@ -116,6 +120,10 @@ export async function deleteClient(id: string) {
 
 export async function listProducts() {
   return prisma.product.findMany({ orderBy: { name: "asc" } });
+}
+
+export async function getProductById(id: string) {
+  return prisma.product.findUnique({ where: { id } });
 }
 
 export async function createProduct(formData: FormData) {
