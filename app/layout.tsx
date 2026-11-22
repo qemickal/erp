@@ -10,9 +10,25 @@ const inter = localFont({
   display: "swap",
 });
 
+const spaceGrotesk = localFont({
+  src: "./fonts/space-grotesk-latin-wght-normal.woff2",
+  variable: "--font-grotesk",
+  weight: "300 700",
+  display: "swap",
+});
+
+const firaMono = localFont({
+  src: [
+    { path: "./fonts/fira-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/fira-mono-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-fira-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "ArteGráfico ERP",
-  description: "Sistema de gestión para estudio de artes gráficas",
+  title: "Mono Cromat & Co. — ERP",
+  description: "Sistema de gestión del taller de artes gráficas Mono Cromat & Co. Cotizaciones, pedidos, producción, calidad y postventa.",
 };
 
 export default function RootLayout({
@@ -22,7 +38,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${inter.variable} font-sans antialiased text-foreground bg-background`}>
+      <body
+        className={`${inter.variable} ${spaceGrotesk.variable} ${firaMono.variable} font-sans antialiased text-foreground bg-background`}
+      >
         <Chrome>{children}</Chrome>
       </body>
     </html>

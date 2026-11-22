@@ -28,7 +28,7 @@ function packVariant(status: string) {
 
 export default async function CalidadPage() {
   const production = await prisma.productionOrder.findMany({
-    orderBy: { dueDate: "asc", createdAt: "desc" },
+    orderBy: [{ dueDate: "asc" }, { createdAt: "desc" }],
     include: {
       order: { include: { client: true } },
       quality: true,
